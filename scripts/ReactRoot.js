@@ -5,7 +5,9 @@ export default class Root extends Component {
 
   render() {
     return (
-      <div> Hey. </div>
+      <div className="r-root">
+      	<h1>Something</h1>
+      </div>
     );
   }
 }

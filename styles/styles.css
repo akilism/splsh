@@ -11,6 +11,8 @@ h1 {
 	text-transform: uppercase;
 	font-weight: bold;
 	line-height: 1;
+
+	/*-webkit-text-fill-color: #fff;*/
 	/*font-family: sans-serif;*/
 	/*font-family: "Helvetica Neue LT Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;*/
 }
@@ -21,11 +23,11 @@ h1 {
 .bg-mask {
     position: fixed;
     top: 0; right: 0; bottom: 0; left:0;
-    background-color: rgba(148, 183, 236, 0.51);
+    /*background-color: rgba(148, 183, 236, 0.51);*/
     background-size: contain;
-    /*-webkit-background-clip: text;*/
-    /*-webkit-text-fill-color: transparent;*/
-    background-blend-mode: color-burn;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /*background-blend-mode: color-burn;*/
     background-position: center center;
 }
 

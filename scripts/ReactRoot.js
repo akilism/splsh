@@ -56,6 +56,7 @@ export default class Root extends Component {
   	const text = this.wrapText("nothing", this.doSomething);
     return (
       <div className="r-root bg-mask" style={{backgroundImage: `url(${this.state.bg})`}}>
+      blahblahblah
       	<h1>{text}</h1>
       </div>
     );

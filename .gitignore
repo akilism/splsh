@@ -45,3 +45,5 @@ public/index.html
 public/*.gz
 tmp/*
 coverage
+
+*.mp4

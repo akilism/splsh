@@ -97,6 +97,7 @@ input:focus, button:focus {
 .watch-wrapper {
 	position: absolute;
 	bottom: 0;
+  width: 100%;
 }
 
 h3.wtw {
@@ -109,6 +110,11 @@ h3.wtw {
 	border-bottom: 1px solid #000;
 	/*padding-bottom: 1.125rem;*/
 	margin-top:0.9375rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .ways-to-watch h1 {
@@ -128,7 +134,7 @@ h3.wtw {
 
 .ways-to-watch section {
 	max-width: 28rem;
-	padding-right: 2.5rem;
+	/*padding-right: 2.5rem;*/
 	padding-top: 0.5rem;
 	margin-bottom: 0.875rem;
 }
@@ -311,7 +317,7 @@ h3.wtw {
 	justify-content: center;
 	align-items: center;
   flex-wrap: wrap;
-  /*padding-top: 40vh;*/
+  flex-direction: column;
 }
 
 h1 {
@@ -332,6 +338,15 @@ h1 {
   cursor: pointer;
 }
 
+.tv-copy {
+  position: relative;
+  z-index: 100;
+  text-align: center;
+  cursor: pointer;
+  font-size: 4vw;
+  margin-top: 30px;
+}
+
 .full-opacity {
   opacity: 1;
 }
@@ -342,7 +357,6 @@ h1 {
 }
 
 
-/* WordMask Component */
 .bg-mask {
     position: fixed;
     top: 0; right: 0; bottom: 0; left: 0;
@@ -392,4 +406,5 @@ h1 {
   right: 0;
   width: 100vw;
   height: 99vh;
+  cursor: pointer;
 }

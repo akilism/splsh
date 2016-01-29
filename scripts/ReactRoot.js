@@ -32,6 +32,8 @@ export default class Root extends Component {
       hideLogo: false,
       title: "viceland"
 		};
+    this.logoOver = null;
+    this.logoOut = null;
 	}
 
 	getNewBG() {
@@ -104,7 +106,7 @@ export default class Root extends Component {
   }
 
   logoClipper(text, xOff, yOff, textLen, textHeight) {
-    console.log(xOff, yOff, textLen);
+    // console.log(xOff, yOff, textLen);
     // x={xOff} y={yOff}
     // if(textLen === 0) { return ""; }
     const offsetStyle = {transform: `translate(${xOff}px, ${yOff}px)`};
@@ -175,7 +177,7 @@ export default class Root extends Component {
   clipVid(clip, video) {
     const {videoCenter, videoHeight, videoLeft, videoTop, videoWidth} = this.videoDimensions(video),
           {logoCenter, logoHeight, logoLeft, logoTop, logoWidth} = this.logoDimensions(this.refs["logo"]);
-          console.log(this.videoDimensions(video), this.logoDimensions(this.refs["logo"]));
+          // console.log(this.videoDimensions(video), this.logoDimensions(this.refs["logo"]));
     this.setState({clip, textLen: logoWidth, xOff: logoLeft, yOff: logoTop, textHeight: logoHeight});
   }
 
@@ -188,30 +190,78 @@ export default class Root extends Component {
     // }, 1500);
   }
 
-  togglePlay() {
-    this.volume(0.5);
-    if(this.paused()) {
+  hideOnDelay(duration) {
+    if(this.timeoutId) { clearTimeout(this.timeoutId); }
+    this.timeoutId = setTimeout(() => {
+      this.timeoutId = null;
+      this.removeLogoListener(this.refs["logo"]);
+      this.setState({hideLogo: true});
+    }, duration);
+  }
+
+  globalMouseOver(evt) {
+    this.hideOnDelay(2500);
+    setTimeout(() => {
+      this.attachLogoListener(this.refs["logo"]);
+    }, 1000);
+    this.setState({hideLogo: false});
+  }
+
+  clipVideo(shouldClip, video) {
+    if(shouldClip) {
+      this.clipVid(true, video);
+    } else {
+      this.clipVid(false, video);
+    }
+  }
+
+  attachLogoListener(logo) {
+    logo.addEventListener("mouseover", this.logoOver);
+    logo.addEventListener("mouseleave", this.logoOut);
+  }
+
+  removeLogoListener(logo) {
+    logo.removeEventListener("mouseover", this.logoOver);
+    logo.removeEventListener("mouseleave", this.logoOut);
+  }
+
+  togglePlay(forcePlay) {
+    console.log(this.paused(), forcePlay === true, !this.state.hideLogo);
+    if(forcePlay === true || this.paused()) {
       this.play();
+      this.hideOnDelay(2500);
       this.setState({clip: false});
-      this.timeoutId = setTimeout(() => { this.timeoutId = null; this.setState({hideLogo: true}); }, 2500);
+    } else if(!this.state.hideLogo) {
+      this.hideOnDelay(250);
+      this.setState({clip: false});
     } else {
     	if(this.timeoutId) { clearTimeout(this.timeoutId); }
     	this.timeoutId = null;
-      this.setState({clip: false, hideLogo: false});
+      setTimeout(() => {
+        this.attachLogoListener(this.refs["logo"]);
+      }, 3000);
       this.pause();
+      this.setState({clip: true, hideLogo: false});
     }
   }
 
   componentDidMount() {
+    this.volume(0.5);
+    this.logoOver = this.clipVideo.bind(this, true, this.refs["vicelandVideo"]);
+    this.logoOut = this.clipVideo.bind(this, false, this.refs["vicelandVideo"]);
+    window.addEventListener("mouseover", this.globalMouseOver.bind(this));
+    this.attachLogoListener(this.refs["logo"]);
   }
 
   render() {
   	const text = this.wrapText(this.state.title, this.state.clip, () => { this.clipVid(true, video); }, () => { this.clipVid(false, video); }),
           video = this.refs["vicelandVideo"],
           hideLogo = (this.state.hideLogo) ? "zero-opacity" : "full-opacity",
+          hideCopy = (this.state.hideLogo && !this.state.clip) ? "zero-opacity tv-copy" : "full-opacity tv-copy",
           contentClasses = (this.state.clip) ? "content full-opacity" : "content zero-opacity hidden",
-          withClip = (this.state.clip) ? {clipPath: `url(#clipLetters)`, WebkitClipPath: `url(#clipLetters)`} : {};
-    const clipStyle = (this.state.clip) ? {color: 'transparent'} : {};
+          withClip = (this.state.clip) ? {clipPath: `url(#clipLetters)`, WebkitClipPath: `url(#clipLetters)`} : {},
+          clipStyle = (this.state.clip) ? {color: 'transparent'} : {},
+          logoClickHandler = (this.state.clip) ? () => { this.togglePlay(true); } : this.togglePlay.bind(this);
 
 // {this.logoSvg(this.state.clip, () => { this.clipVid(true, video); }, () => { this.clipVid(false, video); })}
 // <h1 className={hideLogo} ref="logo">{text}</h1>
@@ -220,15 +270,18 @@ export default class Root extends Component {
 // {this.logoSvgText(this.state.title, this.state.clip, () => { this.clipVid(true, video); }, () => { this.clipVid(false, video); })}
 // <img src={bg0} className="full-video"  ref="vicelandVideo" style={withClip}  />
     return (
-      <div className="r-root bg-mask">
+      <div ref="r-root" className="r-root bg-mask">
         <h1 style={clipStyle}
-        		onClick={this.togglePlay.bind(this)}
-        		onMouseOver={() => { this.clipVid(true, video); }.bind(this)}
-        		onMouseOut={() => { this.clipVid(false, video); }.bind(this)}
+        		onClick={logoClickHandler}
         		className={hideLogo}
         		ref="logo">
         			{this.state.title}
         		</h1>
+        <div className={hideCopy}
+             onMouseOver={this.logoOver}
+             onMouseOut={this.logoOut}>
+          It's a TV channel.
+        </div>
         <video onClick={this.togglePlay.bind(this)}
         			 onCanPlay={this.videoCanPlay.bind(this)}
 			         className="full-video"
@@ -238,8 +291,8 @@ export default class Root extends Component {
 			         controls>
         </video>
         <div className={contentClasses}
-        		 onMouseOver={() => { this.clipVid(true, video); }.bind(this)}
-        		 onMouseOut={() => { this.clipVid(false, video); }.bind(this)}>
+        		 onMouseOver={this.logoOver}
+             onMouseOut={this.logoOut}>
         	<form action="https://vice4.createsend.com/t/i/s/iklyyu/" method="post" id="subForm">
 						<h3>Sign Up for Updates</h3>
 						<input id="fieldEmail" name="cm-iklyyu-iklyyu" type="email" required="" placeholder="email@address.com" />
